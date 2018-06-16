@@ -122,7 +122,7 @@ describe('DELETE /todo/:id', () => {
         }
 
         Todo.findById(hexId).then((todo) => {
-          expect(todo).toBe(null);
+          expect(todo).toBeFalsy();
           done();
         }).catch((e) => done(e));
       });
@@ -179,6 +179,7 @@ describe('PATCH /todos/:id', () => {
         expect(res.body.todo.text).toBe(text);
         expect(res.body.todo.completed).toBe(true);
         //expect(res.body.todo.completedAt).toBeA('number');
+        expect(typeof res.body.todo.completedAt).toBe('number');
       })
       .end(done);
   });
@@ -197,6 +198,7 @@ describe('PATCH /todos/:id', () => {
 
   it('should clear completedAt when todo is not completed', (done) => {
     var hexId = todos[1]._id.toHexString();
+    var text = 'Second test todo';
 
     request(app)
       .patch(`/todos/${hexId}`)
@@ -204,8 +206,9 @@ describe('PATCH /todos/:id', () => {
       .send({completed:false})
       .expect(200)
       .expect((res) => {
+        expect(res.body.todo.text).toBe(text);
         expect(res.body.todo.completed).toBe(false);
-        expect(res.body.todo.completedAt).toBe(null);
+        expect(res.body.todo.completedAt).toBeFalsy();
       })
       .end(done);
   });
@@ -303,7 +306,7 @@ describe('POST /users/login', () => {
         }
 
         User.findById(users[1]._id).then((user) => {
-          expect(user.tokens[1]).toMatchObject({
+          expect(user.toObject().tokens[1]).toMatchObject({
             access: 'auth',
             token: res.headers['x-auth']
           });
